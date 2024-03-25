@@ -11,11 +11,11 @@ plot(hungary_data.in)
 # We see that data have nice "inverse S shape", that is not typical for our general trend choices, that is why we will try
 # to catch the trend using polynomial of the third order.
 
-model = lm(hungary_data.in ~  + I(t.in^2) + I(t.in^3),data=data.hungary.in)
+model = lm(hun ~  + I(t^2) + I(t^3),data=data.hungary.in)
 
 
 plot(mod_data.in$hun, lwd = 2)
-lines(mod_data.in$t, predict(model01), col = "red")
+lines(mod_data.in$t, predict(model), col = "red")
 
 # maybe diagnostics?  plot(model), ale asi bych udelal az s hotovym modelem
 # summary(model)
@@ -24,12 +24,12 @@ lines(mod_data.in$t, predict(model01), col = "red")
 # variables approach
 
 
-model_s = lm(hun ~  + I(t.in^2) + I(t.in^3)+ seas.dummy, data= data.hungary.in)
+model_s = lm(hun ~  + I(t^2) + I(t^3)+ seas.dummy, data= data.hungary.in)
 
 
 par(mfrow = c(1,1))
 plot(hungary_data.in, lwd = 2)
-lines(ts(predict(model_final_task1), start = start(hungary_data.in), frequency = frequency(hungary_data.in)), col = "red")
+lines(ts(predict(model_s), start = start(hungary_data.in), frequency = frequency(hungary_data.in)), col = "red")
 
 
 plot(model_s)
@@ -52,4 +52,6 @@ model.s.chars[1,5] = mean(abs(residuals(model_s))) # MAPE in
 #model.s.chars[1,7] = mean(abs(((hungary_data.out - predict(model_s, data.hungary.out)))))
 print(model.s.chars)
 
+#Task 3
 
+model2 = ets(hungary_data.in, model = "ZZZ", opt.crit = "lik", ic = "aic")
