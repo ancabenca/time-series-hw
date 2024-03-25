@@ -1,1 +1,4 @@
-#ABE: this is your playground, I won't change anything, but may take a peak, how did you dealt with the problem, so pls at least keep some structure
+#ABE: this is your playground, I won't change anything, but may take a peak, how did you dealt with the problem, so pls at least keep some struct
+
+
+# 1) Volba trendu

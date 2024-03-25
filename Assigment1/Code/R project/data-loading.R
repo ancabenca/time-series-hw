@@ -15,7 +15,6 @@ library(car)
 library(openxlsx)
 library(fpp3)
 #install.packages('fpp3')
-
 #Data loading-----------------------------------------------------------
 hungary_data <- t(read.xlsx("Data/une_rt_m.xlsx", sheet = "Hungary",na.strings = ":"))#transpose, so we can use ts fun properly
 colnames(hungary_data) <- c("hun")
@@ -89,6 +88,8 @@ hist(diff(log(hungary_data.in))) #should be approx normal
 
 
 #Modified exponential TODO - MAYBE
+mod_exp =ts(diff(hungary_data.in)[1:154]/diff(hungary_data.in)[-1])
+plot(ts(diff(hungary_data.in)[1:154]/diff(hungary_data.in)[-1]))
 
 # Calculate first differential
 first_diff <- diff(hungary_data.in)
