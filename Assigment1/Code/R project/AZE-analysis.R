@@ -55,3 +55,36 @@ print(model.s.chars)
 #Task 3
 
 model2 = ets(hungary_data.in, model = "ZZZ", opt.crit = "lik", ic = "aic")
+summary(model2)
+par(mfrow = c(1,1))
+plot(model2)
+
+checkresiduals(model2)
+
+acf(residuals(model2)) # Autocorrelation function
+Box.test(residuals(model2), lag = floor(log(length(residuals(model2)))), type = c("Ljung-Box")) # Ljung - Box test
+
+acf(residuals(model2)^2) # Autocorrelation function RES^2
+Box.test(residuals(model2)^2, lag = floor(log(length(residuals(model2)))), type = c("Ljung-Box")) # Ljung - Box test RES^2
+
+jarque.bera.test(residuals(model2)) # Jarque - Bera test
+
+#Task 5 
+
+model3 = tbats(hungary_data.in)
+
+model3
+
+par(mfrow = c(1,1))
+plot(model3)
+
+
+checkresiduals(model3)
+
+acf(residuals(model3))
+Box.test(residuals(model03), lag = floor(log(length(residuals(model3)))), type = c("Ljung-Box"))
+
+acf(residuals(model3)^2) # Autocorrelation function RES^2
+Box.test(residuals(model3)^2, lag = floor(log(length(residuals(model3)))), type = c("Ljung-Box"))
+
+jarque.bera.test(residuals(model3))

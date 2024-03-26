@@ -258,16 +258,22 @@ acf(model.1.gon3.log$residuals^2)
 #4 BATS------------------------------------------------------------------------
 seasonplot(hungary_data.in, col=rainbow(12), year.labels=TRUE)
 modelBATS = bats(hungary_data.in)
-modelBATS
+modelBATS #lambda =0 -> log transformation
+#(omega,p,q,phi,m1,..,mJ) ->omega: Box Cox param, phi - damping param, ARMA(p,q), m1.., mJ seasonal periods
 par(mfrow = c(1,1))
 plot(modelBATS)
-
+?bats
 modelBATS_forecast = forecast(modelBATS, h = 12)
+plot(hungary_data)
 plot(modelBATS_forecast)
 lines(modelBATS$fitted, col = "red")
-
+lines(hungary_data.out)
 checkresiduals(modelBATS)
 
+?jarque.bera.test
+acf(residuals(modelBATS))
+Box.test(residuals(modelBATS), lag = floor(log(length(residuals(modelBATS)))), type = c("Ljung-Box")) # Ljung - Box test
+jarque.bera.test(residuals(modelBATS)) # Jarque - Bera test
 #6 Predictions------------------------------------------------------------------
 
 #A. Model selection
