@@ -6,7 +6,7 @@
 #C. Plot outputs + describe and interpret
 #D. Verify model
 
-#2. Modeling seasonality using gon funs-----------------------------------------
+
 
 #estimate of the trend in the data -> plot the things out
 #2.2 -> s=12, p4-14
@@ -96,14 +96,184 @@ model.chars[3,7] = mean(abs(((mod_data.out$hun - predict(modelpol5, mod_data.out
 
 
 print(model.chars)
+#2. Modeling seasonality using gon funs-----------------------------------------
+#pol4 gon 1
+model.1.gon = lm(hun ~ t + I(t^2)+I(t^3)+ I(t^4)  +
+                  I(sin(2*pi*t/12)) + I(cos(2*pi*t/12)) +
+                  I(sin(4*pi*t/12)) + I(cos(4*pi*t/12)) +
+                  I(sin(6*pi*t/12)) + I(cos(6*pi*t/12)) +
+                  I(sin(8*pi*t/12)) + I(cos(8*pi*t/12)) +
+                  I(sin(10*pi*t/12)) + I(cos(10*pi*t/12)) +
+                  I(sin(12*pi*t/12)) + I(cos(12*pi*t/12)), data = mod_data.in)
+
+summary(model.1.gon)
+drop(model.1.gon, method = 'F')
+
+par(mfrow = c(1,1))
+plot(mod_data.in$hun, lwd = 2)
+lines(mod_data.in$t, predict(model.1.gon), col = "red") 
+
+par(mfrow = c(2,2))
+plot(model.1.gon)
+par(mfrow = c(1,1))
+acf(model.1.gon$residuals)
+acf(model.1.gon$residuals^2)
+
+#pol4 gon2 -> WINNER
+model.1.gon2 = lm(hun ~ t + I(t^2)+I(t^3)+ I(t^4)  +
+                   I(sin(2*pi*t/12)) + I(cos(2*pi*t/12)) +
+                   I(sin(4*pi*t/12)), data = mod_data.in)
+summary(model.1.gon2)
+decomposed <- decompose(hungary_data.in)
+par(mfrow = c(1,1))
+plot(mod_data.in$hun, lwd = 2)
+lines(mod_data.in$t, decomposed$trend, col = "blue") #pro srovnani s fci decompose
+lines(mod_data.in$t, predict(model.1.gon2), col = "red") 
+
+
+par(mfrow = c(2,2))
+plot(model.1.gon2)
+par(mfrow = c(1,1))
+acf(model.1.gon2$residuals)
+acf(model.1.gon2$residuals^2)
+
+anova(model.1.gon,model.1.gon2) #nezamitame -> lze zjednodušit?
+
+acf(na.omit(decomposed$random)) #pro srovnani
+#pol3 gon 1
+model.2.gon = lm(hun ~ t + I(t^2)+I(t^3)  +
+                   I(sin(2*pi*t/12)) + I(cos(2*pi*t/12)) +
+                   I(sin(4*pi*t/12)) + I(cos(4*pi*t/12)) +
+                   I(sin(6*pi*t/12)) + I(cos(6*pi*t/12)) +
+                   I(sin(8*pi*t/12)) + I(cos(8*pi*t/12)) +
+                   I(sin(10*pi*t/12)) + I(cos(10*pi*t/12)) +
+                   I(sin(12*pi*t/12)) + I(cos(12*pi*t/12)), data = mod_data.in)
+
+summary(model.2.gon)
+drop(model.2.gon, method = 'F')
+
+par(mfrow = c(1,1))
+plot(mod_data.in$hun, lwd = 2)
+lines(mod_data.in$t, predict(model.2.gon), col = "red") 
+
+par(mfrow = c(2,2))
+plot(model.2.gon)
+par(mfrow = c(1,1))
+acf(model.2.gon$residuals)
+acf(model.2.gon$residuals^2)
+#horsi resids I would not pick that
+
+#pol3 gon 2
+
+model.2.gon2 = lm(hun ~ t + I(t^2)+I(t^3)  +
+                   I(sin(2*pi*t/12)) + I(cos(2*pi*t/12)) +
+                   I(sin(4*pi*t/12)), data = mod_data.in)
+
+summary(model.2.gon2)
+#drop(model.2.gon2, method = 'F')
+
+par(mfrow = c(1,1))
+plot(mod_data.in$hun, lwd = 2)
+
+lines(mod_data.in$t, predict(model.2.gon2), col = "red") 
+
+par(mfrow = c(2,2))
+plot(model.2.gon2)
+par(mfrow = c(1,1))
+acf(model.2.gon2$residuals)
+acf(model.2.gon2$residuals^2)
+#NOP
+
+#Diagnostics
+model.chars = matrix(NA, 3, 7)
+colnames(model.chars) = c("R2", "R2.adj", "AIC", "RMSE(in)", "MAE(in)", "RMSE(out)", "MAE(out)")
+rownames(model.chars) = c("modelpol4", "modelpol4-gonfull", "modelpol4-gon2")
+
+model.chars[1,1] = summary(modelpol4)$r.squared # R2
+model.chars[1,2] = summary(modelpol4)$adj.r.squared # Adjusted R2
+model.chars[1,3] = AIC(modelpol4) # AIC
+model.chars[1,4] = sqrt(mean(residuals(modelpol4)^2)) # RMSE in
+model.chars[1,5] = mean(abs(residuals(modelpol4))) # MAPE in
+model.chars[1,6] = sqrt(mean(((mod_data.out$hun - predict(modelpol4, mod_data.out)))^2)) # RMSE out
+model.chars[1,7] = mean(abs(((mod_data.out$hun - predict(modelpol4, mod_data.out))))) # MAPE out
+
+model.chars[2,1] = summary(model.1.gon)$r.squared # R2
+model.chars[2,2] = summary(model.1.gon)$adj.r.squared # Adjusted R2
+model.chars[2,3] = AIC(model.1.gon) # AIC
+model.chars[2,4] = sqrt(mean(residuals(model.1.gon)^2)) # RMSE in
+model.chars[2,5] = mean(abs(residuals(model.1.gon))) # MAPE in
+model.chars[2,6] = sqrt(mean(((mod_data.out$hun - predict(model.1.gon, mod_data.out)))^2)) # RMSE out
+model.chars[2,7] = mean(abs(((mod_data.out$hun - predict(model.1.gon, mod_data.out))))) # MAPE out
+
+model.chars[3,1] = summary(model.1.gon2)$r.squared # R2
+model.chars[3,2] = summary(model.1.gon2)$adj.r.squared # Adjusted R2
+model.chars[3,3] = AIC(model.1.gon2) # AIC
+model.chars[3,4] = sqrt(mean(residuals(model.1.gon2)^2)) # RMSE in
+model.chars[3,5] = mean(abs(residuals(model.1.gon2))) # MAPE in
+model.chars[3,6] = sqrt(mean(((mod_data.out$hun - predict(model.1.gon2, mod_data.out)))^2)) # RMSE out
+model.chars[3,7] = mean(abs(((mod_data.out$hun - predict(model.1.gon2, mod_data.out))))) # MAPE out
+
+anova(model.1.gon,model.1.gon2)
+print(model.chars)
+
+
+
+coeftest(model.1.gon2,vcov=vcovHC(model.1.gon2,type="HC0")) #nezměnily se p hodnoty
+#-> hetero není dostatečně potento?
+
+#??? zbyla mi tam nějaká autokorelace, co s ní? -> možná param model?
+#??? jsou podmínky lineárního modelu splněny?
+
+#pol3 gon 1
+model.1.gon2.log = lm(log(hun) ~ t + I(t^2)+I(t^3)+ I(t^4)  +
+                    I(sin(2*pi*t/12)) + I(cos(2*pi*t/12)) +
+                    I(sin(4*pi*t/12)), data = mod_data.in)
+summary(model.1.gon2.log)
+par(mfrow = c(1,1))
+plot(mod_data.in$hun, lwd = 2)
+lines(mod_data.in$t, exp(predict(model.1.gon2.log)), col = "red") 
+
+par(mfrow = c(2,2))
+plot(model.1.gon2.log)
+par(mfrow = c(1,1))
+acf(model.1.gon2.log$residuals)
+acf(model.1.gon2.log$residuals^2)
+
+model.1.gon3.log = lm(log(hun) ~ t + I(t^2)+I(t^3)+ I(t^4)+ I(cos(2*pi*t/12)), data = mod_data.in)
+summary(model.1.gon3.log)
+par(mfrow = c(1,1))
+plot(mod_data.in$hun, lwd = 2)
+lines(mod_data.in$t, exp(predict(model.1.gon3.log)), col = "red") 
+
+par(mfrow = c(2,2))
+plot(model.1.gon3.log)
+par(mfrow = c(1,1))
+acf(model.1.gon3.log$residuals)
+acf(model.1.gon3.log$residuals^2)
+#ZHORSENI
+
+#Finalni model => model.1.gon2 (polynomialni trend 4 stupne)
+
+
 #4 BATS------------------------------------------------------------------------
+seasonplot(hungary_data.in, col=rainbow(12), year.labels=TRUE)
+modelBATS = bats(hungary_data.in)
+modelBATS
+par(mfrow = c(1,1))
+plot(modelBATS)
 
+modelBATS_forecast = forecast(modelBATS, h = 12)
+plot(modelBATS_forecast)
+lines(modelBATS$fitted, col = "red")
 
-
-
+checkresiduals(modelBATS)
 
 #6 Predictions------------------------------------------------------------------
 
+#A. Model selection
+
+
+#B.Prediction
 
 
 #Measuremnts: MSE and spol
