@@ -24,7 +24,7 @@ hungary_data <- ts(hungary_data, frequency = 12, start = c(1983, 1))
 
 
 #in-sample
-hungary_data.in <- window(hungary_data, start = c(2010, 3), end = c(2023, 2))
+hungary_data.in <- window(hungary_data, start = c(2010, 1), end = c(2022, 12))
 mod_data.in <-  data.frame(hun = hungary_data.in, t = seq_along(hungary_data.in))
 #out-sample
 hungary_data.out <- window(hungary_data, start = c(2023, 3), end = c(2024,2))
@@ -48,11 +48,13 @@ View(mod_data.out)
 summary(hungary_data)
 summary(hungary_data.in)
 hist(hungary_data)
+hist(hungary_data.in)
 plot(hungary_data)
-
+plot(hungary_data.in)
 #Data visualization-------------------------
 autoplot(hungary_data)
-ggseasonplot(hungary_data) #seasonal months
+autoplot(hungary_data.in)
+ggseasonplot(hungary_data.in) #seasonal months
 ggsubseriesplot(hungary_data)
 
 Acf(hungary_data)
@@ -122,3 +124,5 @@ ratio_diff_log <- second_diff_log / first_diff_shifted_log
 
 # Plot the ratio of two differences
 plot(ratio_diff_log, type='l', main='Ratio of Log Differences Plot', xlab='Time', ylab='Ratio of Differences')
+
+nrow(hungary_data)
