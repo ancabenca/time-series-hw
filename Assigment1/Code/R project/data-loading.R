@@ -24,7 +24,7 @@ hungary_data <- ts(hungary_data, frequency = 12, start = c(1983, 1))
 
 
 #in-sample
-hungary_data.in <- window(hungary_data, start = c(2010, 1), end = c(2022, 12))
+hungary_data.in <- window(hungary_data, start = c(2010, 3), end = c(2023, 2))
 mod_data.in <-  data.frame(hun = hungary_data.in, t = seq_along(hungary_data.in))
 #out-sample
 hungary_data.out <- window(hungary_data, start = c(2023, 1), end = c(2023, 12))
