@@ -107,7 +107,7 @@ model.1.gon = lm(hun ~ t + I(t^2)+I(t^3)+ I(t^4)  +
                   I(sin(12*pi*t/12)) + I(cos(12*pi*t/12)), data = mod_data.in)
 
 summary(model.1.gon)
-drop(model.1.gon, method = 'F')
+drop1(model.1.gon, test = 'F')
 
 par(mfrow = c(1,1))
 plot(mod_data.in$hun, lwd = 2)
