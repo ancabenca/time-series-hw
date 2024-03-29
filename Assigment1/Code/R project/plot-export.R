@@ -32,8 +32,16 @@ ggsave("plotDataExpl.pdf", plotDataExpl, width = 12, height = 6)
 
 #-------------------------------------------------------------------------------
 #Task 2
+data.hungary.in = data.frame(hun = hungary_data.in, t = seq_along(hungary_data.in), seas.dummy = as.factor(cycle(hungary_data.in)))
+
+model1 = lm(hun ~ t + I(t^2) + I(t^3)+I(t^4)+ seas.dummy, data= data.hungary.in)
 
 
+par(mfrow = c(1,1))
+plot(hungary_data.in, lwd = 2)
+lines(ts(predict(model1), start = start(hungary_data.in), frequency = frequency(hungary_data.in)), col = "red")
+
+checkresiduals(model1)
 
 #-------------------------------------------------------------------------------
 #Task 3
