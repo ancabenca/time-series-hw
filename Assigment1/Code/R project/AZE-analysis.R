@@ -10,15 +10,20 @@ data.hungary.out = data.frame(hun = hungary_data.out, t = seq_along(hungary_data
 
 
 plot(hungary_data.in)
+seasonplot(hungary_data.in)
 # We see that data have nice "inverse S shape", that is not typical for our general trend choices, that is why we will try
 # to catch the trend using polynomial of the fourth order.
 
 model = lm(hun ~ t+  I(t^2) + I(t^3) + + I(t^4),data=data.hungary.in)
 
-
 plot(mod_data.in$hun, lwd = 2)
 
-lines(mod_data.in$t, predict(model), col = "red")
+lines(mod_data.in$t, predict(model1), col = "red")
+
+data = data.frame(c=(12))
+
+predict(model,data=data)
+
 
 summary(model)
 
@@ -35,7 +40,7 @@ par(mfrow = c(1,1))
 plot(hungary_data.in, lwd = 2)
 lines(ts(predict(model1), start = start(hungary_data.in), frequency = frequency(hungary_data.in)), col = "red")
 
-
+par(mfrow=c(2,2))
 plot(model1)
 checkresiduals(model1)
 
@@ -58,18 +63,19 @@ print(model.s.chars)
 
 #Task 3
 library(forecast)
-model2 = ets(hungary_data.in, model = "ZZZ", opt.crit = "lik", ic = "aic")
+model3 = ets(hungary_data.in, model = "ZZZ", opt.crit = "lik", ic = "aic")
 summary(model3)
+
 par(mfrow = c(1,1))
 plot(model3)
 
 checkresiduals(model3)
 
 acf(residuals(model3)) # Autocorrelation function
-Box.test(residuals(model3), lag = floor(log(length(residuals(model2)))), type = c("Ljung-Box")) # Ljung - Box test
+Box.test(residuals(model3), lag = floor(log(length(residuals(model3)))), type = c("Ljung-Box")) # Ljung - Box test
 
 acf(residuals(model3)^2) # Autocorrelation function RES^2
-Box.test(residuals(model3)^2, lag = floor(log(length(residuals(model2)))), type = c("Ljung-Box")) # Ljung - Box test RES^2
+Box.test(residuals(model3)^2, lag = floor(log(length(residuals(model3)))), type = c("Ljung-Box")) # Ljung - Box test RES^2
 
 jarque.bera.test(residuals(model3)) # Jarque - Bera test
 

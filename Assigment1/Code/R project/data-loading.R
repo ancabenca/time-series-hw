@@ -2,7 +2,7 @@
 #ABE: Please do not delete or change mindlessly lines or we get nasty conflicts in GIT
 
 # CleaningWS ------------------------------------------------------------------
-rm(list = ls())
+rm(list = ls())[]
 graphics.off()
 #ABE: do not forgo to set directory to the correct path!
 
