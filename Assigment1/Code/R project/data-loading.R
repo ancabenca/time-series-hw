@@ -18,16 +18,17 @@ library(fpp3)
 #install.packages('fpp3')
 #Data loading-----------------------------------------------------------
 hungary_data <- t(read.xlsx("Data/une_rt_m.xlsx", sheet = "Hungary",na.strings = ":"))#transpose, so we can use ts fun properly
+
 colnames(hungary_data) <- c("hun")
 hungary_data <- apply(hungary_data, 2, as.numeric)
-hungary_data <- ts(hungary_data, frequency = 12, start = c(1983, 1))
+hungary_data <- ts(hungary_data, frequency = 12, start = c(1983, 0))
 
 
 #in-sample
 hungary_data.in <- window(hungary_data, start = c(2010, 1), end = c(2022, 12))
 mod_data.in <-  data.frame(hun = hungary_data.in, t = seq_along(hungary_data.in))
 #out-sample
-hungary_data.out <- window(hungary_data, start = c(2023, 3), end = c(2024,2))
+hungary_data.out <- window(hungary_data, start = c(2023, 1), end = c(2023,12))
 mod_data.out <- data.frame(hun = hungary_data.out, t =seq_along(hungary_data.out))
 #Check
 start(hungary_data)
