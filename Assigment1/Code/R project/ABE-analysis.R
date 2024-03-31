@@ -97,7 +97,7 @@ model.chars[3,7] = mean(abs(((mod_data.out$hun - predict(modelpol5, mod_data.out
 
 print(model.chars)
 #2. Modeling seasonality using gon funs-----------------------------------------
-#pol4 gon 1
+#pol4 gon 1 
 model.1.gon = lm(hun ~ t + I(t^2)+I(t^3)+ I(t^4)  +
                   I(sin(2*pi*t/12)) + I(cos(2*pi*t/12)) +
                   I(sin(4*pi*t/12)) + I(cos(4*pi*t/12)) +
@@ -119,7 +119,26 @@ par(mfrow = c(1,1))
 acf(model.1.gon$residuals)
 acf(model.1.gon$residuals^2)
 
-#pol4 gon2 -> WINNER
+#pol4 gon WINNER
+model.1.gon3 = lm(hun ~ t + I(t^2)+I(t^3)+ I(t^4)  +
+                    I(sin(2*pi*t/12)) +
+                    I(sin(4*pi*t/12)), data = mod_data.in)
+summary(model.1.gon3)
+decomposed <- decompose(hungary_data.in)
+par(mfrow = c(1,1))
+plot(mod_data.in$hun, lwd = 2)
+lines(mod_data.in$t, decomposed$trend, col = "blue") #pro srovnani s fci decompose
+lines(mod_data.in$t, predict(model.1.gon3), col = "red") 
+
+par(mfrow = c(2,2))
+plot(model.1.gon3)
+par(mfrow = c(1,1))
+acf(model.1.gon3$residuals)
+acf(model.1.gon3$residuals^2)
+
+anova(model.1.gon2,model.1.gon3) 
+checkresiduals(model.1.gon3)
+#pol4 gon2 
 model.1.gon2 = lm(hun ~ t + I(t^2)+I(t^3)+ I(t^4)  +
                    I(sin(2*pi*t/12)) + I(cos(2*pi*t/12)) +
                    I(sin(4*pi*t/12)), data = mod_data.in)
@@ -187,15 +206,15 @@ acf(model.2.gon2$residuals^2)
 #Diagnostics
 model.chars = matrix(NA, 3, 7)
 colnames(model.chars) = c("R2", "R2.adj", "AIC", "RMSE(in)", "MAE(in)", "RMSE(out)", "MAE(out)")
-rownames(model.chars) = c("modelpol4", "modelpol4-gonfull", "modelpol4-gon2")
+rownames(model.chars) = c("model.1.gon3", "modelpol4-gonfull", "modelpol4-gon2")
 
-model.chars[1,1] = summary(modelpol4)$r.squared # R2
-model.chars[1,2] = summary(modelpol4)$adj.r.squared # Adjusted R2
-model.chars[1,3] = AIC(modelpol4) # AIC
-model.chars[1,4] = sqrt(mean(residuals(modelpol4)^2)) # RMSE in
-model.chars[1,5] = mean(abs(residuals(modelpol4))) # MAPE in
-model.chars[1,6] = sqrt(mean(((mod_data.out$hun - predict(modelpol4, mod_data.out)))^2)) # RMSE out
-model.chars[1,7] = mean(abs(((mod_data.out$hun - predict(modelpol4, mod_data.out))))) # MAPE out
+model.chars[1,1] = summary(model.1.gon3)$r.squared # R2
+model.chars[1,2] = summary(model.1.gon3)$adj.r.squared # Adjusted R2
+model.chars[1,3] = AIC(model.1.gon3) # AIC
+model.chars[1,4] = sqrt(mean(residuals(model.1.gon3)^2)) # RMSE in
+model.chars[1,5] = mean(abs(residuals(model.1.gon3))) # MAPE in
+model.chars[1,6] = sqrt(mean(((mod_data.out$hun - predict(model.1.gon3, mod_data.out)))^2)) # RMSE out
+model.chars[1,7] = mean(abs(((mod_data.out$hun - predict(model.1.gon3, mod_data.out))))) # MAPE out
 
 model.chars[2,1] = summary(model.1.gon)$r.squared # R2
 model.chars[2,2] = summary(model.1.gon)$adj.r.squared # Adjusted R2
@@ -262,25 +281,36 @@ modelBATS #lambda =0 -> log transformation
 #(omega,p,q,phi,m1,..,mJ) ->omega: Box Cox param, phi - damping param, ARMA(p,q), m1.., mJ seasonal periods
 par(mfrow = c(1,1))
 plot(modelBATS)
+plot(model5)
 ?bats
 modelBATS_forecast = forecast(modelBATS, h = 12)
 plot(hungary_data)
 plot(modelBATS_forecast)
-lines(modelBATS$fitted, col = "red")
 lines(hungary_data.out)
-checkresiduals(modelBATS)
+lines(modelBATS$fitted, col = "red")
 
+checkresiduals(modelBATS)
+?checkresiduals
 ?jarque.bera.test
 acf(residuals(modelBATS))
 Box.test(residuals(modelBATS), lag = floor(log(length(residuals(modelBATS)))), type = c("Ljung-Box")) # Ljung - Box test
 jarque.bera.test(residuals(modelBATS)) # Jarque - Bera test
+
+#1404, 1392, 1565, 1539, 1538
 #6 Predictions------------------------------------------------------------------
 
 #A. Model selection
 
 
 #B.Prediction
-
-
+autoplot(modelBATS_forecast) +
+  autolayer(hungary_data.in, series = "Observed", size = 0.9) +
+  autolayer(hungary_data.out, series = "Observed",  size = 1) +
+  autolayer(modelBATS$fitted, series = "Fitted", linetype = "solid", size = 0.9) +
+  labs(x = "Time", y = "Unemployment (thousands)") +
+  theme(legend.position = "bottom")
+ggsave()
+library(forecast)
+plot_components(modelBATS)
 #Measuremnts: MSE and spol
 #některé jsou bezrozměrné (MAPE, AMAPE)
