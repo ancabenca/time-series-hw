@@ -1,4 +1,8 @@
 #Cviko 3 - trend identification
+#Pomocný skript k identifikaci správného trendu
+
+
+
 #* MODEL: Y = Tr + E with Tr = a0 + a1*t + a2*t^2 ------------------------------
 
 #*** Model declaration ---------------------------------------------------------

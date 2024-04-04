@@ -1,4 +1,5 @@
 ##ABE playground-----------------------------------------------------------------
+#TASK 2, TASK 4, TASK 6
 
 #General instructions
 #A. Fit a model
@@ -30,7 +31,7 @@ plot(modelpol3)
 acf(residuals(modelpol3)) # highly correlated -> not the best model2
 acf(residuals(modelpol3)^2)
 
-#* modelpol4: Y = Tr + E with Tr = a0 + a1*t + a2*t^2 + a3*t^3 ------------------------------
+#* modelpol4: Y = Tr + E with Tr = a0 + a1*t + a2*t^2 + a3*t^3 + a4*t^4 ------------------------------
 
 #*** Model declaration ---------------------------------------------------------
 modelpol4 = lm(hun ~ t+I(t^2)+I(t^3) + I(t^4), data = mod_data.in) #quadratic curve?
@@ -48,7 +49,7 @@ plot(modelpol4)
 acf(residuals(modelpol4)) # highly correlated -> not the best model2
 acf(residuals(modelpol4)^2)
 
-#* modelpol4: Y = Tr + E with Tr = a0 + a1*t + a2*t^2 + a3*t^3 ------------------------------
+#* modelpol4: Y = Tr + E with Tr = a0 + a1*t + a2*t^2 + a3*t^3 + a4*t^4 + a5*t^5 ------------------------------
 
 #*** Model declaration ---------------------------------------------------------
 modelpol5 = lm(hun ~ t+I(t^2)+I(t^3) + I(t^4) +I(t^5), data = mod_data.in) #quadratic curve?
@@ -310,7 +311,6 @@ autoplot(modelBATS_forecast) +
   labs(x = "Time", y = "Unemployment (thousands)") +
   theme(legend.position = "bottom")
 ggsave()
-library(forecast)
 plot_components(modelBATS)
 #Measuremnts: MSE and spol
 #některé jsou bezrozměrné (MAPE, AMAPE)

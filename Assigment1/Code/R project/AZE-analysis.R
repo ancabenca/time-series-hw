@@ -1,5 +1,4 @@
-#ABE: this is your playground, I won't change anything, but may take a peak, how did you dealt with the problem, so pls at least keep some struct
-
+#TASK 1, TASK 3, TASK 5
 
 # TASK 1 
 library(tseries)
