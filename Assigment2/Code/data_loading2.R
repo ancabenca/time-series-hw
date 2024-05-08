@@ -33,4 +33,5 @@ getSymbols(ticker, src = "yahoo")
 # View loaded data
 View(NTDOY)
 
+nintendo = NTDOY$NTDOY.Adjusted
 #------------------------------------------------------------------------------
