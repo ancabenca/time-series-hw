@@ -13,14 +13,15 @@ graphics.off()
 #-------------------------------------------------------------------------------
 ##Libraries----------------------------------------------------------------------
 
-#install.packages("quantmod")
+install.packages("PerformanceAnalytics")
 library(quantmod)
 library(tseries) #arima
 library(lmtest)
 library(car)
 library(forecast) #auto.arima
-#library(rugarch)
-
+library(rugarch)
+library(pastecs)
+library(PerformanceAnalytics)
 #------------------------------------------------------------------------------
 ##Data loading-------------------------------------------------------------------
 
@@ -59,3 +60,4 @@ nintendo_ts.out <- ts(nintendo.out)
 #The adjusted closing price accounts for any corporate actions such as stock splits, dividends, or other adjustments that may affect the stock's price.
 #It provides a more accurate representation of the stock's performance over time, taking into account these factors
 #------------------------------------------------------------------------------
+
