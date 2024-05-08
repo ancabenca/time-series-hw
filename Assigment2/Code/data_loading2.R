@@ -64,3 +64,7 @@ nintendo_ts <- ts(nintendo, start = c(2007, 1,3), end = c(2024,5,7), frequency =
 
 # Subset the time series to the desired time window (from January 2017 to March 2024)
 nintendo_ts.in <- window(nintendo_ts, start = c(2017, 1), end = c(2024, 3))
+
+
+plot(nintendo_ts.in)
+str(nintendo_ts.in)
