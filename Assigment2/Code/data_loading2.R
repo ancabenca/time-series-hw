@@ -20,7 +20,6 @@ library(lmtest)
 library(car)
 library(forecast) #auto.arima
 library(rugarch)
-library(pastecs)
 library(PerformanceAnalytics)
 #------------------------------------------------------------------------------
 ##Data loading-------------------------------------------------------------------
