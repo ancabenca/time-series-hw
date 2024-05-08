@@ -28,12 +28,17 @@ library(forecast) #auto.arima
 ticker <- "NTDOY"
 
 # Load data from Google Finance
-getSymbols(ticker, src = "yahoo")
+getSymbols(ticker, src = "yahoo", from="2017-01-03", to = "2024-04-01") #in sample
+nintendo.in <-NTDOY$NTDOY.Adjusted
+nintendo_ts.in <- ts(nintendo.in)
 
-# View loaded data
-View(NTDOY)
-summary(NTDOY)
+getSymbols(ticker, from="2024-04-01", to = "2024-04-06") #out sample
+nintendo.out <-NTDOY$NTDOY.Adjusted
+nintendo_ts.out <- ts(nintendo.out)
 
+#Note: this way of data loading is inefficient, but functional.
+
+#-----------------------------------------------------------------------
 #Explanation of each column
 # NTDOY.Open: This column represents the opening price of Nintendo's stock on a 
 #particular trading day. The opening price is the price at which the first trade of the day occurred.
@@ -54,17 +59,3 @@ summary(NTDOY)
 #The adjusted closing price accounts for any corporate actions such as stock splits, dividends, or other adjustments that may affect the stock's price.
 #It provides a more accurate representation of the stock's performance over time, taking into account these factors
 #------------------------------------------------------------------------------
-#Time series format---------------------------------------------------------------
-
-nintendo<- NTDOY$NTDOY.Adjusted
-start(nintendo)
-end(nintendo)
-# Create a time series object
-nintendo_ts <- ts(nintendo, start = c(2007, 1,3), end = c(2024,5,7), frequency = 365)
-
-# Subset the time series to the desired time window (from January 2017 to March 2024)
-nintendo_ts.in <- window(nintendo_ts, start = c(2017, 1), end = c(2024, 3))
-
-
-plot(nintendo_ts.in)
-str(nintendo_ts.in)
