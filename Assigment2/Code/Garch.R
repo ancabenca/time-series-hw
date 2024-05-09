@@ -104,47 +104,46 @@ plot(garch.pred, which = 3) # expected sigma
 
 # gjr garch 
 
-ar_range2 = 0:1
-ma_range2 = 0:1
-p_range2 = 0:1
-q_range2 = 0:1
-distributions2 <- c("norm")
+ar_range2 = 0:3
+ma_range2 = 0:3
+p_range2 = 0:4
+q_range2 = 0:4
+distributions2 <- c("norm","std","ged")
 best_aic = Inf
 
-for (dist in distributions) {
-  for (p in p_range) {
-    for (q in q_range) {
-      for (ar in ar_range) {
-        for (ma in ma_range) {
+for (dist in distributions2) {
+  for (p in p_range2) {
+    for (q in q_range2) {
+      for (ar in ar_range2) {
+        for (ma in ma_range2) {
           spec <- ugarchspec(variance.model = list(model = "gjrGARCH", garchOrder = c(p, q)),
                              mean.model = list(armaOrder = c(ar, ma), include.mean = FALSE),
                              distribution.model = dist)
           
-          # Using tryCatch to handle errors and warnings
+          # Using tryCatch to handle errors and warnings for both fitting and AIC calculation
           fit_result <- tryCatch({
-            ugarchfit(spec = spec, data = nintendo.in_log, solver.control = list(trace = 0))
+            fitted_model <- ugarchfit(spec = spec, data = nintendo.in_log, solver.control = list(trace = 0))
+            aic_value <- infocriteria(fitted_model)[1]  # AIC calculation here
+            list(fitted_model = fitted_model, aic = aic_value)
           }, error = function(e) {
             NULL  # Returns NULL if an error occurs
           }, warning = function(w) {
             NULL  # Optionally handle warnings, here just ignore and return NULL
           })
           
-          # Check if fit_result is not NULL (i.e., no error occurred)
-          if (!is.null(fit_result)) {
-            current_aic <- infocriteria(fit_result)[1]
-            
-            if (!is.na(current_aic) && current_aic < best_aic) {
-              best_aic <- current_aic
-              best_model <- list(ar = ar, ma = ma, p = p, q = q, dist = dist)
-              best_spec <- spec
-              best_fit <- fit_result
-            }
+          # Check if fit_result is not NULL (i.e., no error occurred) and AIC was successfully retrieved
+          if (!is.null(fit_result) && !is.na(fit_result$aic) && fit_result$aic < best_aic) {
+            best_aic2 <- fit_result$aic
+            best_model2 <- list(ar = ar, ma = ma, p = p, q = q, dist = dist)
+            best_spec2 <- spec
+            best_fit2 <- fit_result$fitted_model
           }
         }
       }
     }
   }
 }
+
 
 
 # Coefficients, podle me omega je u cipry alfa_0
@@ -158,6 +157,7 @@ plot(best_fit2, which = 12)
 #residuals definition
 res2 = best_fit2@fit$z
 
+checkresiduals(res2)
 # ACF +  Test na autokorel 
 
 acf(res2, type = "correlation")
