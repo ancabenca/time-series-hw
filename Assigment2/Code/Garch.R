@@ -64,13 +64,20 @@ for (dist in distributions) {
 }
 
 # Coefficients, podle me omega je u cipry alfa_0
+best_model <-ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+                       mean.model = list(armaOrder = c(3, 3), include.mean = FALSE),
+                       distribution.model = "std")
+
+best_fit <- ugarchfit(spec = best_model, data = nintendo.in_log, solver.control = list(trace = 0))
+
 best_fit@fit$coef
+#AIC:-5.1934
 
 # some plots, muzes prohledat a vybrat nejaky fajn? 
 plot(best_fit, which = 3)
 plot(best_fit, which = 8)
 plot(best_fit, which = 12)
-
+plot(best_fit, which = 10)
 #residuals definition
 res = best_fit@fit$z
 
@@ -92,17 +99,24 @@ Box.test(res^2, lag = floor(log(length(res^2))), type = c("Ljung-Box")) # Ljung 
 
 jarque.bera.test(res)
 
-
 # Predikce
 
 garch.pred = ugarchboot(best_fit, method = c("Partial", "Full")[1], n.ahead = 5, n.bootpred = 1000, n.bootfit=1000)
+garch.pred@forc@forecast
 print(garch.pred)
-
+nintendo.out_log
 plot(garch.pred, which = 2) # expected returns
 plot(garch.pred, which = 3) # expected sigma
+nintendo.out_log$pred_val <- c(0.000332,  -0.000304,  -0.000195, -0.000352, 0.000025)
+plot(nintendo.out_log[,1:2], ylim = c(-0.04, 0.04), main = "")
 
 
-# gjr garch 
+nintendo.out_log$expOG <- exp(nintendo.out_log$NTDOY.Adjusted)
+nintendo.out_log$expPred <-exp(nintendo.out_log$pred_val)
+
+
+
+#GJR GARCH---------------------------------------------------------------------
 
 ar_range2 = 0:3
 ma_range2 = 0:3
@@ -147,15 +161,21 @@ for (dist in distributions2) {
 
 
 # Coefficients, podle me omega je u cipry alfa_0
+best_model2 <-ugarchspec(variance.model = list(model = "gjrGARCH", garchOrder = c(4, 2)),
+                        mean.model = list(armaOrder = c(3, 1), include.mean = FALSE),
+                        distribution.model = "std")
+best_fit2 <- ugarchfit(spec = best_model2, data = nintendo.in_log, solver.control = list(trace = 0))
 best_fit2@fit$coef
 
 # some plots, muzes prohledat a vybrat nejaky fajn? 
 plot(best_fit2, which = 3)
+plot(best_fit2, which = 2)
 plot(best_fit2, which = 8)
 plot(best_fit2, which = 12)
 
 #residuals definition
 res2 = best_fit2@fit$z
+#AIC: -5.1917
 
 checkresiduals(res2)
 # ACF +  Test na autokorel 
@@ -182,3 +202,53 @@ print(garch.pred2)
 
 plot(garch.pred2, which = 2) # expected returns
 plot(garch.pred2, which = 3) # expected sigma
+
+
+
+
+
+#----------------------------------------------------------------------------------
+# Extract predicted values
+# Plot garch.pred
+plot(fitted(garch.pred@forc))
+
+# Add Nintendo log returns as a line
+lines(nintendo.out_log$NTDOY.Adjusted, col = "blue")
+
+ #----------------------------------------------------------------------------------
+library(ggplot2)
+
+library(rugarch)
+library(ggplot2)
+
+# Define the specification of the ARMA+GARCH model with student's t-distributed errors
+best_model <- ugarchspec(
+  variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+  mean.model = list(armaOrder = c(3, 3), include.mean = FALSE),
+  distribution.model = "std"
+)
+
+# Fit the model to your data
+best_fit <- ugarchfit(spec = best_model, data = nintendo.in_log, solver.control = list(trace = 0))
+
+# Extract the standardized residuals
+std_resid <- residuals(best_fit, standardize = TRUE)
+
+# Plot the standardized residuals
+ggplot(data = as.data.frame(std_resid), aes(x = index(std_resid), y = std_resid)) +
+  geom_line(color = "blue") +
+  labs(title = "Standardized Residuals", x = "Date", y = "Residuals") +
+  theme_minimal()
+
+plot(nintendo.in_log)
+
+# Extract the fitted values
+fitted_values <- fitted(best_fit)
+
+# Plot the original data along with the fitted values
+ggplot() +
+  geom_line(data = as.data.frame(nintendo.in_log), aes(x = index(nintendo.in_log), y = nintendo.in_log), color = "blue") +
+  geom_line(data = as.data.frame(fitted_values), aes(x = index(fitted_values), y = fitted_values), color = "red") +
+  labs(title = "Original Data vs. Fitted Values", x = "Date", y = "Log Returns") +
+  theme_minimal()
+

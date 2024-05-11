@@ -21,6 +21,8 @@ library(car)
 library(forecast) #auto.arima
 library(rugarch)
 library(PerformanceAnalytics)
+library(ggplot2)
+library(gridExtra)
 #------------------------------------------------------------------------------
 ##Data loading-------------------------------------------------------------------
 
@@ -32,7 +34,7 @@ getSymbols(ticker, src = "yahoo", from="2017-01-03", to = "2024-04-01") #in samp
 nintendo.in <-NTDOY$NTDOY.Adjusted
 nintendo_ts.in <- ts(nintendo.in)
 
-getSymbols(ticker, from="2024-04-01", to = "2024-04-06") #out sample
+getSymbols(ticker, from="2024-03-28", to = "2024-04-06") #out sample
 nintendo.out <-NTDOY$NTDOY.Adjusted
 nintendo_ts.out <- ts(nintendo.out)
 
