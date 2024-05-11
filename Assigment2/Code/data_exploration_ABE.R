@@ -92,7 +92,8 @@ ggsave("TimeSeriesACF.png", plot = TimeSeriesACF, width = 12, height = 6)
 # Load necessary libraries
 library(rugarch)
 library(ggplot2)
-
+library(gridExtra)
+install.packages("gridExtra")
 # Assuming you have stored your original data in nintendo.out_log[,1]
 original_data <- nintendo.out_log[,1]
 
@@ -120,15 +121,59 @@ colnames(plot_data)[5] <- "Predicted_Data2"
 colnames(plot_data)[6] <- "Predicted_Sigma2"
 
 # Plot
-ggplot(data = plot_data, aes(x = Date)) +
+predictions <- ggplot(data = plot_data, aes(x = Date)) +
   geom_line(aes(y = Original_Data, color = "Original Data")) +
-  geom_line(aes(y = Predicted_Data, color = "Predicted Data")) +
-  geom_line(aes(y = Predicted_Sigma, color = "Predicted Sigma")) +
-  geom_line(aes(y = Predicted_Data2, color = "Predicted Data2")) + 
-  geom_line(aes(y = Predicted_Sigma2, color = "Predicted Sigma2")) + 
-labs(title = "(GJR)GARCH Prediction vs Log Returns P_t",
+  geom_line(aes(y = Predicted_Data, color = "Returns GARCH")) +
+  geom_line(aes(y = Predicted_Sigma, color = "Sigma GARCH")) +
+  geom_line(aes(y = Predicted_Data2, color = "Returns GJR-GARCH")) + 
+  geom_line(aes(y = Predicted_Sigma2, color = "Sigma GJR-GARCH")) + 
+labs(title = "(GJR)GARCH Predictions vs Log Returns P_t",
        y = "Log Returns",
-       color = "Data Type") +
-  theme_minimal()
+       color = "Data Type")
 
-plot(garch.pred, which =2)
+ggsave("pred.pdf", predictions, width = 12, height = 6)
+
+
+garchM <- plot(garch.pred, which =2)
+garchS <- plot(garch.pred, which = 3) # expected sigma
+garchexport <- grid.arrange(garchM, garchS, nrow = 1)
+str(garchM)
+
+gjGarchM <- plot(garch.pred2, which = 2) # expected returns
+gjrGarchS <- plot(garch.pred2, which = 3) # expected sigma
+
+#--------------------------------------------------------------------------------
+sarima_forecast <-plot_data$Predicted_Data
+actual_values <- plot_data$Original_Data
+# SARIMA model error metrics
+sarima_errors <- actual_values - sarima_forecast
+sarima_mae <- mean(abs(sarima_errors))
+sarima_mse <- mean(sarima_errors^2)
+sarima_rmse <- sqrt(mean(sarima_errors^2))
+sarima_mape <- mean(abs(sarima_errors/actual_values)) * 100
+sarima_mpe <- mean(sarima_errors/actual_values) * 100
+sarima_bias <- mean(sarima_errors)
+sarima_mase <- mean(abs(sarima_errors) / mean(abs(actual_values - lag(actual_values, 1))))
+
+
+arima_forecast <- plot_data$Predicted_Data2
+# ARIMA model error metrics
+arima_errors <- actual_values - arima_forecast
+arima_mae <- mean(abs(arima_errors))
+arima_mse <- mean(arima_errors^2)
+arima_rmse <- sqrt(mean(arima_errors^2))
+arima_mape <- mean(abs(arima_errors/actual_values)) * 100
+arima_mpe <- mean(arima_errors/actual_values) * 100
+arima_bias <- mean(arima_errors)
+arima_mase <- mean(abs(arima_errors) / mean(abs(actual_values - lag(actual_values, 1))))
+
+
+
+error_metrics <- data.frame(Model = c("GARCH", "GJR-GARCH"),
+                            MAE = c(sarima_mae, arima_mae),
+                            MSE = c(sarima_mse, arima_mse),
+                            RMSE = c(sarima_rmse, arima_rmse),
+                            MAPE = c(sarima_mape, arima_mape),
+                            MPE = c(sarima_mpe, arima_mpe),
+                            Bias = c(sarima_bias, arima_bias),
+                            MASE = c(sarima_mase, arima_mase))

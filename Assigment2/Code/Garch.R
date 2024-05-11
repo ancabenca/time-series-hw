@@ -78,6 +78,7 @@ plot(best_fit, which = 3)
 plot(best_fit, which = 8)
 plot(best_fit, which = 12)
 plot(best_fit, which = 10)
+plot(best_fit)
 #residuals definition
 res = best_fit@fit$z
 
@@ -107,12 +108,13 @@ print(garch.pred)
 nintendo.out_log
 plot(garch.pred, which = 2) # expected returns
 plot(garch.pred, which = 3) # expected sigma
-nintendo.out_log$pred_val <- c(0.000332,  -0.000304,  -0.000195, -0.000352, 0.000025)
-plot(nintendo.out_log[,1:2], ylim = c(-0.04, 0.04), main = "")
 
 
-nintendo.out_log$expOG <- exp(nintendo.out_log$NTDOY.Adjusted)
-nintendo.out_log$expPred <-exp(nintendo.out_log$pred_val)
+
+#nintendo.out_log$pred_val <- c(0.000332,  -0.000304,  -0.000195, -0.000352, 0.000025)
+#plot(nintendo.out_log[,1:2], ylim = c(-0.04, 0.04), main = "")
+#nintendo.out_log$expOG <- exp(nintendo.out_log$NTDOY.Adjusted)
+#nintendo.out_log$expPred <-exp(nintendo.out_log$pred_val)
 
 
 
@@ -173,6 +175,8 @@ plot(best_fit2, which = 2)
 plot(best_fit2, which = 8)
 plot(best_fit2, which = 12)
 
+#classic spikes for t student 
+
 #residuals definition
 res2 = best_fit2@fit$z
 #AIC: -5.1917
@@ -182,7 +186,7 @@ checkresiduals(res2)
 
 acf(res2, type = "correlation")
 
-Box.test(res2, lag = floor(log(length(res2^2))), type = c("Ljung-Box")) # Ljung - Box test RES
+Box.test(res2, lag = floor(log(length(res2))), type = c("Ljung-Box")) # Ljung - Box test RES
 
 # ACF +  Test na konstantni rozptyl
 
