@@ -1,25 +1,4 @@
-library(rugarch)
-library(tseries) #arima
-library(lmtest)
-library(car)
-library(forecast) #auto.arima
-library(PerformanceAnalytics)
-library(quantmod)
-
-# Define the ticker symbol
-ticker <- "NTDOY"
-
-# Load data from Google Finance
-getSymbols(ticker, src = "yahoo", from="2017-01-03", to = "2024-04-01") #in sample
-nintendo.in <-NTDOY$NTDOY.Adjusted
-nintendo_ts.in <- ts(nintendo.in)
-
-
-nintendo.in_log <- CalculateReturns(nintendo.in, method = "log")
-nintendo.in_log <- na.omit(nintendo.in_log)
-plot(nintendo.in_log,main='Nintendo return', xlab='Date', ylab='Log(Return)')
-
-
+#GARCH algorithm-------------------------------------------------------------
 ar_range = 0:3
 ma_range = 0:3
 p_range = 0:4
@@ -27,7 +6,7 @@ q_range = 0:4
 distributions <- c("norm", "std", "ged")
 best_aic = Inf
 
-
+#Beware it takes a long till finish
 for (dist in distributions) {
   for (p in p_range) {
     for (q in q_range) {
@@ -73,7 +52,7 @@ best_fit <- ugarchfit(spec = best_model, data = nintendo.in_log, solver.control 
 best_fit@fit$coef
 #AIC:-5.1934
 
-
+#Assumptions--------------------------------------------------------------------
 # AR ROOTS
 ar_coefs <- coef(best_fit)[grepl("ar", names(coef(best_fit)))]
 ar_roots <- polyroot(c(1, -ar_coefs))
@@ -86,14 +65,15 @@ ma_roots <- polyroot(c(1,+ma_coefs))
 inverse_rootsma <- 1/Mod(ma_roots)
 all(inverse_rootsma < 1)
 
-
+#Visualization------------------------------------------------------------------
 # some plots, muzes prohledat a vybrat nejaky fajn? 
 plot(best_fit, which = 3)
 plot(best_fit, which = 8)
 plot(best_fit, which = 12)
 plot(best_fit, which = 10)
 plot(best_fit)
-#residuals definition
+
+#residuals definition-----------------------------------------------------------
 res = best_fit@fit$z
 
 checkresiduals(res)
@@ -114,7 +94,7 @@ Box.test(res^2, lag = floor(log(length(res^2))), type = c("Ljung-Box")) # Ljung 
 
 jarque.bera.test(res)
 
-# Predikce
+# Predikce-prep----------------------------------------------------------------
 
 garch.pred = ugarchboot(best_fit, method = c("Partial", "Full")[1], n.ahead = 5, n.bootpred = 1000, n.bootfit=1000)
 garch.pred@forc@forecast
@@ -123,15 +103,7 @@ nintendo.out_log
 plot(garch.pred, which = 2) # expected returns
 plot(garch.pred, which = 3) # expected sigma
 
-
-
-#nintendo.out_log$pred_val <- c(0.000332,  -0.000304,  -0.000195, -0.000352, 0.000025)
-#plot(nintendo.out_log[,1:2], ylim = c(-0.04, 0.04), main = "")
-#nintendo.out_log$expOG <- exp(nintendo.out_log$NTDOY.Adjusted)
-#nintendo.out_log$expPred <-exp(nintendo.out_log$pred_val)
-
-
-
+################################################################################
 #GJR GARCH---------------------------------------------------------------------
 
 ar_range2 = 0:3
@@ -183,6 +155,8 @@ best_model2 <-ugarchspec(variance.model = list(model = "gjrGARCH", garchOrder = 
 best_fit2 <- ugarchfit(spec = best_model2, data = nintendo.in_log, solver.control = list(trace = 0))
 best_fit2@fit$coef
 
+
+#Assumptions--------------------------------------------------------------------
 # AR ROOTS
 ar_coefs2 <- coef(best_fit2)[grepl("ar", names(coef(best_fit2)))]
 ar_roots2 <- polyroot(c(1, -ar_coefs2))
@@ -194,14 +168,15 @@ ma_roots2 <- polyroot(c(1,+ma_coefs2))
 inverse_rootsma2 <- 1/Mod(ma_roots2)
 all(inverse_rootsma2 < 1)
 
+#Visualization------------------------------------------------------------------
 # some plots, muzes prohledat a vybrat nejaky fajn? 
 plot(best_fit2, which = 3)
 plot(best_fit2, which = 2)
 plot(best_fit2, which = 8)
 plot(best_fit2, which = 12)
 
-#classic spikes for t student 
 
+#Assumptions--------------------------------------------------------------------
 #residuals definition
 res2 = best_fit2@fit$z
 #AIC: -5.1917
@@ -224,7 +199,7 @@ Box.test(res2^2, lag = floor(log(length(res2^2))), type = c("Ljung-Box")) # Ljun
 jarque.bera.test(res2)
 
 
-# Predikce
+# Predikce-prep-------------------------------------------------------------------
 
 garch.pred2 = ugarchboot(best_fit2, method = c("Partial", "Full")[1], n.ahead = 5, n.bootpred = 1000, n.bootfit=1000)
 print(garch.pred2)
@@ -232,23 +207,8 @@ print(garch.pred2)
 plot(garch.pred2, which = 2) # expected returns
 plot(garch.pred2, which = 3) # expected sigma
 
-
-
-
-
 #----------------------------------------------------------------------------------
-# Extract predicted values
-# Plot garch.pred
-plot(fitted(garch.pred@forc))
-
-# Add Nintendo log returns as a line
-lines(nintendo.out_log$NTDOY.Adjusted, col = "blue")
-
- #----------------------------------------------------------------------------------
-library(ggplot2)
-
-library(rugarch)
-library(ggplot2)
+#Additional visualization--------------------------------------------------------
 
 # Define the specification of the ARMA+GARCH model with student's t-distributed errors
 best_model <- ugarchspec(
