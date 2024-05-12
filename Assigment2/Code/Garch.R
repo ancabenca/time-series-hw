@@ -71,6 +71,12 @@ best_model <-ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1
 best_fit <- ugarchfit(spec = best_model, data = nintendo.in_log, solver.control = list(trace = 0))
 
 best_fit@fit$coef
+
+# AR ROOTS
+ar_coefs <- coef(best_fit)[grepl("ar", names(coef(best_fit)))]
+ar_roots <- polyroot(c(1, -ar_coefs))
+inverse_roots <- 1/Mod(ar_roots)
+all(inverse_roots < 1)
 #AIC:-5.1934
 
 # some plots, muzes prohledat a vybrat nejaky fajn? 
@@ -168,6 +174,12 @@ best_model2 <-ugarchspec(variance.model = list(model = "gjrGARCH", garchOrder = 
                         distribution.model = "std")
 best_fit2 <- ugarchfit(spec = best_model2, data = nintendo.in_log, solver.control = list(trace = 0))
 best_fit2@fit$coef
+
+# AR ROOTS
+ar_coefs2 <- coef(best_fit2)[grepl("ar", names(coef(best_fit2)))]
+ar_roots2 <- polyroot(c(1, -ar_coefs2))
+inverse_roots2 <- 1/Mod(ar_roots2)
+all(inverse_roots2 < 1)
 
 # some plots, muzes prohledat a vybrat nejaky fajn? 
 plot(best_fit2, which = 3)
