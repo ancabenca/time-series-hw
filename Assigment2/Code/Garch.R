@@ -71,13 +71,21 @@ best_model <-ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1
 best_fit <- ugarchfit(spec = best_model, data = nintendo.in_log, solver.control = list(trace = 0))
 
 best_fit@fit$coef
+#AIC:-5.1934
+
 
 # AR ROOTS
 ar_coefs <- coef(best_fit)[grepl("ar", names(coef(best_fit)))]
 ar_roots <- polyroot(c(1, -ar_coefs))
 inverse_roots <- 1/Mod(ar_roots)
 all(inverse_roots < 1)
-#AIC:-5.1934
+
+# MA ROOTS
+ma_coefs <- coef(best_fit)[grepl("ma", names(coef(best_fit)))]
+ma_roots <- polyroot(c(1,+ma_coefs))
+inverse_rootsma <- 1/Mod(ma_roots)
+all(inverse_rootsma < 1)
+
 
 # some plots, muzes prohledat a vybrat nejaky fajn? 
 plot(best_fit, which = 3)
@@ -180,6 +188,11 @@ ar_coefs2 <- coef(best_fit2)[grepl("ar", names(coef(best_fit2)))]
 ar_roots2 <- polyroot(c(1, -ar_coefs2))
 inverse_roots2 <- 1/Mod(ar_roots2)
 all(inverse_roots2 < 1)
+# MA ROOTS
+ma_coefs2 <- best_fit2@fit$coef[4]
+ma_roots2 <- polyroot(c(1,+ma_coefs2))
+inverse_rootsma2 <- 1/Mod(ma_roots2)
+all(inverse_rootsma2 < 1)
 
 # some plots, muzes prohledat a vybrat nejaky fajn? 
 plot(best_fit2, which = 3)
